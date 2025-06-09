@@ -39,10 +39,24 @@ static void vcpu_mem(unsigned int cpu_index, qemu_plugin_meminfo_t info,
 		if (addr >= haddr_lo && addr < haddr_hi) {
 			rewrite_cnt++;	
 			
+			// Dump the physical addr
 			memcpy(buffer_ptr, &addr, 8);
 			
 			buffer_ptr += 8;
 			buffer_remaining_size -= 8;
+
+			// Dump the instr stored in this addr
+			GByteArray *data = g_byte_array_sized_new(4);
+
+			uint32_t instr = 0xaaaaaaaa; // Magic number
+			bool success = qemu_plugin_read_memory_vaddr(vaddr, data, 4);
+	
+			if (success) instr = data->data[0] + (data->data[1]<<8) + (data->data[2]<<16) + (data->data[3]<<24);
+			
+			memcpy(buffer_ptr, &instr, 4);
+
+			buffer_ptr += 4;
+			buffer_remaining_size -= 4;
 		}
 	}
 }
@@ -55,7 +69,7 @@ static void vcpu_mem(unsigned int cpu_index, qemu_plugin_meminfo_t info,
  */
 static void vcpu_tb_trans(qemu_plugin_id_t id, struct qemu_plugin_tb *tb)
 {
-    struct qemu_plugin_insn *insn;
+    struct qemu_plugin_insn *insn; // Struct defined in include/qemu/plugin.h
     size_t n_insns = qemu_plugin_tb_n_insns(tb);
 
     for (size_t i = 0; i < n_insns; i++) {
