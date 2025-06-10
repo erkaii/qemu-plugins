@@ -90,7 +90,7 @@ static void vcpu_tb_trans(qemu_plugin_id_t id, struct qemu_plugin_tb *tb)
         /* Register callback on memory read or write */
         qemu_plugin_register_vcpu_mem_cb(insn, vcpu_mem,
                                              QEMU_PLUGIN_CB_NO_REGS,
-                                             QEMU_PLUGIN_MEM_RW, NULL);
+                                             QEMU_PLUGIN_MEM_W, NULL);
         //g_free(insn_disas);
     }
 }
