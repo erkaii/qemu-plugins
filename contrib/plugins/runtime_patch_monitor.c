@@ -57,6 +57,9 @@ static void vcpu_mem(unsigned int cpu_index, qemu_plugin_meminfo_t info,
 
             buffer_ptr += 4;
             buffer_remaining_size -= 4;
+
+
+            fprintf(stderr, "virtual address: %s\n", udata);
         }
     }
 }
@@ -72,9 +75,11 @@ static void vcpu_tb_trans(qemu_plugin_id_t id, struct qemu_plugin_tb *tb)
     struct qemu_plugin_insn *insn; // Struct defined in include/qemu/plugin.h
     size_t n_insns = qemu_plugin_tb_n_insns(tb);
 
+    char *output;
+
     for (size_t i = 0; i < n_insns; i++) {
         // char *insn_disas;
-        // uint64_t insn_vaddr;
+        uint64_t insn_vaddr;
 
         /*
          * `insn` is shared between translations in QEMU, copy needed data here.
@@ -85,12 +90,13 @@ static void vcpu_tb_trans(qemu_plugin_id_t id, struct qemu_plugin_tb *tb)
          */
         insn = qemu_plugin_tb_get_insn(tb, i);
         //insn_disas = qemu_plugin_insn_disas(insn);
-        //insn_vaddr = qemu_plugin_insn_vaddr(insn);
+        insn_vaddr = qemu_plugin_insn_vaddr(insn);
 
+        output = g_strdup_printf("%016lx", insn_vaddr);
         /* Register callback on memory read or write */
         qemu_plugin_register_vcpu_mem_cb(insn, vcpu_mem,
                 QEMU_PLUGIN_CB_NO_REGS,
-                QEMU_PLUGIN_MEM_W, NULL);
+                QEMU_PLUGIN_MEM_W, output);
         //g_free(insn_disas);
     }
 }
