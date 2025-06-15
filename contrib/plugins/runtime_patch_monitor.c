@@ -16,7 +16,7 @@
 
 #include <qemu-plugin.h>
 
-static unsigned long long haddr_lo = 0x40210000ULL, haddr_hi = 0x412d5000ULL;
+static unsigned long long haddr_lo = 0x40210000ULL, haddr_hi = 0x412d7000ULL;
 
 static unsigned long long rewrite_cnt = 0;
 
@@ -59,7 +59,7 @@ static void vcpu_mem(unsigned int cpu_index, qemu_plugin_meminfo_t info,
             buffer_remaining_size -= 4;
 
 
-            fprintf(stderr, "virtual address: %s\n", udata);
+            fprintf(stderr, "virtual address #%d: %s\n", rewrite_cnt, udata);
         }
     }
 }
